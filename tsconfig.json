@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+     "lib": [
+        "es5",
+        "es6"
+     ],
+     "target": "es5",
+     "module": "commonjs",
+     "moduleResolution": "node",
+     "emitDecoratorMetadata": true,
+     "experimentalDecorators": true,
+     // "sourceMap": true, //이거하면 모든 js파일마다 js.map파일이 생김,, 
+     "outDir": "./dist",                        /* Redirect output structure to the directory. */
+     "rootDir": "./src",  /* Redirect output structure to the directory. */
+     "esModuleInterop": true,
+  }
+}

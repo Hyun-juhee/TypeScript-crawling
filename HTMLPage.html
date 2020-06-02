@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css" />
+  
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script src="https://code.jquery.com/jquery-1.11.1.min.js"></script>
+    <script src="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
+    <script>
+        window.onload = function() {
+            $('#loadTop12').click(function () {
+                try {
+                    $.get(`http://localhost:3000/inha_plaza/getTop`, function(data) {
+                        console.log(data)
+                        console.log(data.data.length)
+                        for (let i = 0; i < data.data.length; i++) {
+                            console.log(i)
+                            console.log(data.data[i])
+                            let output = '<li><b>'+data.data[i]+'</b></li>';
+                            $(output).prependTo('ul');
+                        }
+                    });
+                } catch(err) {
+                    console.log(err)
+                } 
+            }); 
+        }
+        
+    </script>
+</head>
+<body>
+    <button id='loadTop12'>Button</button>
+    <div data-role="content">
+        <ul id="content">
+            <li>눠</li>
+        </ul>
+    </div>
+</body>
+</html>
