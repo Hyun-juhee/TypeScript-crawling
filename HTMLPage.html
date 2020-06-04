@@ -13,13 +13,13 @@
         window.onload = function() {
             $('#loadTop12').click(function () {
                 try {
-                    $.get(`http://localhost:3000/inha_plaza/getTop`, function(data) {
+                    $.get(`http://localhost:3000/inha_plaza`, function(data) {
                         console.log(data)
                         console.log(data.data.length)
                         for (let i = 0; i < data.data.length; i++) {
                             console.log(i)
-                            console.log(data.data[i])
-                            let output = '<li><b>'+data.data[i]+'</b></li>';
+                            console.log(data.data[i].title)
+                            let output = '<li><b>'+data.data[i].title+'</b></li>';
                             $(output).prependTo('ul');
                         }
                     });
@@ -28,14 +28,12 @@
                 } 
             }); 
         }
-        
     </script>
 </head>
 <body>
     <button id='loadTop12'>Button</button>
     <div data-role="content">
         <ul id="content">
-            <li>눠</li>
         </ul>
     </div>
 </body>

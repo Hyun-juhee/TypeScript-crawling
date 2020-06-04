@@ -8,6 +8,18 @@ import { getConnection, getRepository} from 'typeorm';
 
 export const getTop: RequestHandler = async (req, res) => {
     try {  
+        const top = await getRepository(inha_plaza)
+        .createQueryBuilder("inha_plaza")
+        .getMany();
+        
+        res.status(201).json(response.success(message.READ_SUCCESS, top));
+    } catch(err) {
+        console.log(err)
+    }
+};
+
+export const insertTop: RequestHandler = async (req, res) => {
+    try {  
         const crawl = () =>
             new Promise<string>((resolve, reject) => {
                 request.get({
@@ -19,12 +31,6 @@ export const getTop: RequestHandler = async (req, res) => {
                 });
         });
         const result = await crawl();
-        const length = (html: string) => {
-            if (html === '') return [];
-            const $ = load(html);
-            const crawledRealtimeKeywords = $('#menu2093_obj18 > div._fnctWrap._articleTable > form > table > tbody').children('tr');
-            return $(crawledRealtimeKeywords).length;
-        };
         const extract = (html: string, j:number) => {
             if (html === '') return [];
             const $ = load(html);
@@ -53,7 +59,7 @@ export const getTop: RequestHandler = async (req, res) => {
             return keywords;
         };
         let top: any[] = [];
-        for (let i: number = 1; i <= length(result); i++) {
+        for (let i: number = 1; i <= 10; i++) {
             let res = extract(result, i)[0];
             let content: string = res.content.replace('\n\t\t\t\t\t\t\t\t\t','');
             content = content.replace('\n\t\t\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t','');
@@ -84,3 +90,74 @@ export const getTop: RequestHandler = async (req, res) => {
     }
 };
 
+export const updateTop: RequestHandler = async (req, res) => {
+    try {  
+        const crawl = () =>
+            new Promise<string>((resolve, reject) => {
+                request.get({
+                        url: 'https://plaza.inha.ac.kr/plaza/2093/subview.do',
+                        jar: true
+                    }, (err, res) => {
+                    if (err) reject(err);
+                    resolve(res.body);
+                });
+        });
+        const result = await crawl();
+        const extract = (html: string, j:number) => {
+            if (html === '') return [];
+            const $ = load(html);
+            const crawledRealtimeKeywords = $(`#menu2093_obj18 > div._fnctWrap._articleTable > form > table > tbody > tr:nth-child(${j}) > td._artclTdTitle > a`,);
+            const keywords = $(crawledRealtimeKeywords)
+              .map(
+                (i, ele) => {
+                    return {content: $(ele).text(),
+                    link: $(ele).attr()};
+                },
+              )
+              .get();
+            return keywords;
+        };
+        const postedAt = (html: string, j:number) => {
+            if (html === '') return [];
+            const $ = load(html);
+            const crawledRealtimeKeywords = $(`#menu2093_obj18 > div._fnctWrap._articleTable > form > table > tbody > tr:nth-child(${j}) > td._artclTdRdate`,);
+            const keywords: string[] = $(crawledRealtimeKeywords)
+              .map(
+                (i, ele): string => {
+                    return $(ele).text();
+                },
+              )
+              .get();
+            return keywords;
+        };
+        let top: any[] = [];
+        for (let i: number = 1; i <= 10; i++) {
+            let res = extract(result, i)[0];
+            let content: string = res.content.replace('\n\t\t\t\t\t\t\t\t\t','');
+            content = content.replace('\n\t\t\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t','');
+            content = content.replace('\n\t\t\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t','');
+            let link: string = res.link.href;
+            let posted_at: string = postedAt(result, i)[0];
+            let elem: {
+                content: string,
+                posted_at: string,
+                link: string
+            } = {
+                content,
+                posted_at,
+                link 
+            }
+            top.push(elem);
+            let topRepository = await getRepository(inha_plaza);
+            let topUpdate = await topRepository.findOne(i);
+            topUpdate.title = content;
+            topUpdate.link = link;
+            topUpdate.posted_at = new Date(posted_at);
+            await topRepository.save(topUpdate);
+        }
+        console.log(top)
+        res.status(201).json(response.success(message.READ_SUCCESS, top));
+    } catch(err) {
+        console.log(err)
+    }
+};
